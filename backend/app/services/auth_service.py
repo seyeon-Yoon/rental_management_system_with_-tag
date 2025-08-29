@@ -14,17 +14,17 @@ from app.db.database import get_db
 logger = logging.getLogger(__name__)
 
 
-class SchoolAPIService:
-    """학교 API 연동 서비스"""
+class UniversityAPIService:
+    """대학교 API 연동 서비스"""
     
     def __init__(self):
-        self.base_url = settings.SCHOOL_API_BASE_URL
-        self.login_endpoint = settings.SCHOOL_API_LOGIN_ENDPOINT
-        self.timeout = settings.SCHOOL_API_TIMEOUT
+        self.base_url = settings.UNIVERSITY_API_BASE_URL
+        self.login_endpoint = settings.UNIVERSITY_API_LOGIN_ENDPOINT
+        self.timeout = settings.UNIVERSITY_API_TIMEOUT
     
     async def authenticate_student(self, student_id: str, password: str) -> Optional[Dict[str, Any]]:
         """
-        학교 시스템으로 학생 인증
+        대학교 시스템으로 학생 인증
         
         Args:
             student_id: 학번
@@ -60,17 +60,17 @@ class SchoolAPIService:
                 user_info = self._parse_user_info(login_response.text)
                 
                 if user_info and user_info.get("student_id") == student_id:
-                    logger.info(f"학교 API 인증 성공: {student_id}")
+                    logger.info(f"대학교 API 인증 성공: {student_id}")
                     return user_info
                 else:
-                    logger.warning(f"학교 API 인증 실패: {student_id}")
+                    logger.warning(f"대학교 API 인증 실패: {student_id}")
                     return None
                     
         except httpx.TimeoutException:
-            logger.error(f"학교 API 타임아웃: {student_id}")
+            logger.error(f"대학교 API 타임아웃: {student_id}")
             return None
         except Exception as e:
-            logger.error(f"학교 API 연동 오류: {e}")
+            logger.error(f"대학교 API 연동 오류: {e}")
             return None
     
     def _parse_user_info(self, html_content: str) -> Optional[Dict[str, Any]]:
@@ -103,11 +103,11 @@ class SchoolAPIService:
             email_element = soup.find('span', class_='email')
             email = email_element.get_text(strip=True) if email_element else None
             
-            # 공대 학생 여부 확인
-            is_engineering_student = self._is_engineering_department(department)
+            # 융공대 학생 여부 확인
+            is_convergence_engineering_student = self._is_convergence_engineering_department(department)
             
-            if not is_engineering_student:
-                logger.warning(f"공대 학생이 아닙니다: {department}")
+            if not is_convergence_engineering_student:
+                logger.warning(f"융공대 학생이 아닙니다: {department}")
                 return None
             
             return {
@@ -121,20 +121,20 @@ class SchoolAPIService:
             logger.error(f"HTML 파싱 오류: {e}")
             return None
     
-    def _is_engineering_department(self, department: str) -> bool:
-        """공과대학 소속 여부 확인"""
+    def _is_convergence_engineering_department(self, department: str) -> bool:
+        """융합공과대학 소속 여부 확인"""
         if not department:
             return False
         
-        # 공대 전공 리스트에서 확인
-        return department in settings.ENGINEERING_MAJORS
+        # 융공대 전공 리스트에서 확인
+        return department in settings.CONVERGENCE_ENGINEERING_MAJORS
 
 
 class AuthService:
     """인증 서비스"""
     
     def __init__(self):
-        self.school_api = SchoolAPIService()
+        self.university_api = UniversityAPIService()
     
     async def login(self, student_id: str, password: str, db: Session, ip_address: str = None) -> Dict[str, Any]:
         """
@@ -152,9 +152,9 @@ class AuthService:
         Raises:
             ValueError: 인증 실패 시
         """
-        # 학교 API로 인증
-        school_user_info = await self.school_api.authenticate_student(student_id, password)
-        if not school_user_info:
+        # 대학교 API로 인증
+        university_user_info = await self.university_api.authenticate_student(student_id, password)
+        if not university_user_info:
             # 감사 로그 기록
             audit_log = AuditLog.create_log(
                 action="LOGIN_FAILED",
@@ -173,10 +173,10 @@ class AuthService:
         if not user:
             # 신규 사용자 생성
             user = User(
-                student_id=school_user_info["student_id"],
-                name=school_user_info["name"],
-                department=school_user_info["department"],
-                email=school_user_info.get("email"),
+                student_id=university_user_info["student_id"],
+                name=university_user_info["name"],
+                department=university_user_info["department"],
+                email=university_user_info.get("email"),
                 role=UserRole.STUDENT
             )
             db.add(user)
@@ -196,10 +196,10 @@ class AuthService:
             
         else:
             # 기존 사용자 정보 업데이트
-            user.name = school_user_info["name"]
-            user.department = school_user_info["department"]
-            if school_user_info.get("email"):
-                user.email = school_user_info["email"]
+            user.name = university_user_info["name"]
+            user.department = university_user_info["department"]
+            if university_user_info.get("email"):
+                user.email = university_user_info["email"]
             user.last_login_at = datetime.utcnow()
         
         # 비활성 사용자 체크
