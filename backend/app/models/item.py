@@ -30,7 +30,7 @@ class Item(Base):
     is_active = Column(Boolean, default=True, nullable=False, comment="활성 상태")
     
     # 메타데이터 (JSONB - 품목별 특수 속성)
-    metadata = Column(JSON, nullable=True, comment="메타데이터 (색상, 크기, 모델명 등)")
+    item_metadata = Column(JSON, nullable=True, comment="메타데이터 (색상, 크기, 모델명 등)")
     
     # 타임스탬프
     created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="생성 시간")
