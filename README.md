@@ -334,19 +334,19 @@ cd frontend
 # 의존성 설치 (이미 설정되어 있음)
 npm install
 
-# 개발 서버 시작
-npm start
+# 개발 서버 시작 (Vite)
+npm run dev
 
 # 브라우저에서 http://localhost:3000 접속하여 확인
 ```
 
 **현재 설치된 주요 라이브러리:**
-- React 18 + TypeScript (4.9.5)
+- React 18 + TypeScript 5.3.3
+- Vite 5.0.8 (빌드 도구)
 - Material-UI v5 (@mui/material, @mui/icons-material)  
 - TanStack Query v5 (@tanstack/react-query)
 - React Router v6
 - Axios, Day.js
-- webpack-dev-server v5.2.2 (개발 의존성)
 
 ### 4단계: 개발 시작
 `docs/FRONTEND_DEVELOPMENT_GUIDE.md`의 "구현 순서" 섹션에 따라 단계적으로 개발:
@@ -399,7 +399,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 # 2. 프론트엔드 실행 (별도 터미널)
 cd frontend  
 npm install  # 최초 1회만
-npm start
+npm run dev
 
 # 접속
 # - 프론트엔드: http://localhost:3000
