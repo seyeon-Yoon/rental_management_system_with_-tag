@@ -1,16 +1,16 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 
-import Layout from '@/components/common/Layout';
-import ProtectedRoute from '@/components/common/ProtectedRoute';
-import LoginPage from '@/pages/LoginPage';
-import HomePage from '@/pages/HomePage';
-import ReservationPage from '@/pages/ReservationPage';
-import RentalHistoryPage from '@/pages/RentalHistoryPage';
-import AdminDashboard from '@/pages/admin/AdminDashboard';
-import ItemManagement from '@/pages/admin/ItemManagement';
-import RentalManagement from '@/pages/admin/RentalManagement';
+import Layout from './components/common/Layout';
+import ProtectedRoute from './components/common/ProtectedRoute';
+import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
+import ReservationPage from './pages/ReservationPage';
+import RentalHistoryPage from './pages/RentalHistoryPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ItemManagement from './pages/admin/ItemManagement';
+import RentalManagement from './pages/admin/RentalManagement';
 
 function App() {
   return (
@@ -31,7 +31,7 @@ function App() {
           <Route path="history" element={<RentalHistoryPage />} />
           
           {/* Admin Routes */}
-          <Route path="admin" element={<ProtectedRoute requireAdmin />}>
+          <Route path="admin" element={<ProtectedRoute requireAdmin><Outlet /></ProtectedRoute>}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="items" element={<ItemManagement />} />

@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from typing import List
+import os
 
 
 class Settings(BaseSettings):
@@ -34,7 +35,8 @@ class Settings(BaseSettings):
     ]
 
     class Config:
-        env_file = ".env"
+        env_file = "../.env"
+        extra = "ignore"  # 추가 변수 무시
 
 
 settings = Settings()

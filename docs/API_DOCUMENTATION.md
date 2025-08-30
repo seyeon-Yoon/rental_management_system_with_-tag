@@ -1,0 +1,146 @@
+# API 문서
+
+## 개요
+
+렌탈 관리 시스템 REST API 문서입니다. 현재 총 32개의 엔드포인트가 구현되어 있습니다.
+
+- **베이스 URL**: `http://localhost:8000/api/v1`
+- **인증**: JWT Bearer Token
+- **Swagger UI**: `http://localhost:8000/docs`
+
+## 인증 API (`/api/v1/auth`)
+
+현재 구현 완료된 인증 관련 엔드포인트:
+
+### `POST /api/v1/auth/login`
+- **기능**: 대학교 시스템 연동 로그인
+- **요청**: `{ "student_id": "학번", "password": "비밀번호" }`
+- **응답**: JWT 토큰 및 사용자 정보
+- **특징**: 대학교 홈페이지 HTML 파싱으로 학과 정보 추출, 융공대 학생 여부 자동 확인
+
+### `POST /api/v1/auth/logout`
+- **기능**: 로그아웃 및 세션 종료
+- **인증**: Bearer 토큰 필요
+- **특징**: Redis 세션 삭제, 감사 로그 자동 기록
+
+### `GET /api/v1/auth/me`
+- **기능**: 현재 사용자 정보 조회
+- **인증**: Bearer 토큰 필요
+- **응답**: 사용자 프로필 정보
+
+### `POST /api/v1/auth/refresh`
+- **기능**: JWT 토큰 갱신
+- **인증**: Bearer 토큰 필요
+- **특징**: 기존 세션 무효화 후 새 토큰 발급
+
+### 보안 기능
+
+- **JWT 토큰 인증**: HS256 알고리즘, 24시간 유효
+- **Redis 세션 관리**: 동시 로그인 제어, 자동 만료
+- **권한 기반 접근 제어**: 학생/관리자 역할 분리
+- **감사 로그**: 모든 인증 활동 자동 기록 (로그인/로그아웃/실패)
+- **IP 추적**: 클라이언트 IP 주소 기록 (X-Forwarded-For 지원)
+- **대학교 API 연동**: HTML 파싱으로 실시간 학생 인증
+
+## 품목 관리 API (`/api/v1/categories`, `/api/v1/items`)
+
+현재 구현 완료된 품목 관리 관련 엔드포인트:
+
+### 카테고리 관리 (`/api/v1/categories`)
+- **`GET /categories`**: 카테고리 목록 조회 (페이지네이션, 필터링 지원)
+- **`GET /categories/{id}`**: 특정 카테고리 상세 조회
+- **`POST /categories`**: 새 카테고리 생성 (관리자 전용)
+- **`PUT /categories/{id}`**: 카테고리 정보 수정 (관리자 전용)
+- **`DELETE /categories/{id}`**: 카테고리 삭제 (관리자 전용, 소프트 삭제)
+- **`GET /categories/statistics`**: 카테고리 통계 조회 (관리자 전용)
+
+### 품목 관리 (`/api/v1/items`)
+- **`GET /items`**: 품목 목록 조회 (검색, 필터링, 페이지네이션 지원)
+- **`GET /items/available`**: 대여 가능한 품목만 조회
+- **`GET /items/{id}`**: 특정 품목 상세 조회
+- **`GET /items/serial/{serial}`**: 일련번호로 품목 조회
+- **`POST /items`**: 새 품목 등록 (관리자 전용)
+- **`PUT /items/{id}`**: 품목 정보 수정 (관리자 전용)
+- **`DELETE /items/{id}`**: 품목 삭제 (관리자 전용, 소프트 삭제)
+- **`GET /items/statistics`**: 품목 통계 조회 (관리자 전용)
+
+### 주요 기능
+- **실시간 재고 상태**: AVAILABLE/RESERVED/RENTED/MAINTENANCE 상태 관리
+- **개별 품목 추적**: 일련번호(serial_number)로 동일 품목 개별 관리
+- **메타데이터 지원**: 품목별 특수 속성(색상, 크기, 모델명 등) JSONB 저장
+- **감사 로그**: 모든 품목/카테고리 변경 이력 자동 기록
+- **권한 기반 접근**: 학생(조회만), 관리자(전체 관리) 구분
+- **소프트 삭제**: 데이터 보존하면서 논리적 삭제 처리
+
+## 예약 시스템 API (`/api/v1/reservations`)
+
+현재 구현 완료된 예약 시스템 관련 엔드포인트:
+
+### 예약 관리
+- **`GET /reservations`**: 예약 목록 조회 (검색, 필터링, 페이지네이션 지원)
+- **`GET /reservations/my`**: 내 활성 예약 조회 (학생용)
+- **`GET /reservations/{id}`**: 특정 예약 상세 조회
+- **`POST /reservations`**: 새 예약 생성
+- **`POST /reservations/{id}/confirm`**: 예약 수령 확인 (관리자 전용)
+- **`POST /reservations/{id}/cancel`**: 예약 취소
+- **`POST /reservations/expire`**: 만료된 예약 일괄 처리 (관리자 전용)
+- **`GET /reservations/statistics`**: 예약 통계 조회 (관리자 전용)
+
+### 핵심 기능
+- **1시간 예약 제한**: 예약 후 1시간 내 수령 필수, 초과 시 자동 만료
+- **실시간 재고 연동**: 예약 시 품목 상태 AVAILABLE → RESERVED 자동 변경
+- **자동 만료 처리**: 스케줄러를 통한 만료된 예약 자동 정리
+- **중복 예약 방지**: 같은 품목에 대한 중복 예약 불가
+- **권한 기반 관리**: 학생(본인 예약만), 관리자(전체 관리) 구분
+- **상태 추적**: PENDING/CONFIRMED/CANCELLED/EXPIRED 상태 관리
+- **남은 시간 계산**: 실시간 만료까지 남은 시간 표시
+- **감사 로그**: 모든 예약 관련 활동 자동 기록
+
+### 예약 프로세스
+1. **예약 생성**: 학생이 AVAILABLE 품목 예약
+2. **품목 상태 변경**: AVAILABLE → RESERVED
+3. **1시간 대기**: 학생회실 방문하여 수령
+4. **수령 확인**: 관리자가 수령 확인 → CONFIRMED
+5. **대여 시작**: 품목 상태 RESERVED → RENTED
+6. **자동 만료**: 1시간 초과 시 EXPIRED, 품목 AVAILABLE 복원
+
+## 대여 관리 API (`/api/v1/rentals`)
+
+현재 구현 완료된 대여 관리 관련 엔드포인트:
+
+### 대여 관리
+- **`GET /rentals`**: 대여 목록 조회 (검색, 필터링, 페이지네이션 지원)
+- **`GET /rentals/my`**: 내 활성 대여 조회 (학생용)
+- **`GET /rentals/{id}`**: 특정 대여 상세 조회
+- **`POST /rentals/{id}/return`**: 대여 반납 처리 (관리자 전용)
+- **`POST /rentals/{id}/extend`**: 대여 연장 처리 (관리자 전용)
+- **`POST /rentals/overdue`**: 연체된 대여 일괄 처리 (관리자 전용)
+- **`GET /rentals/history`**: 대여 이력 통계 조회 (관리자 전용)
+- **`GET /rentals/statistics`**: 대여 통계 조회 (관리자 전용)
+
+### 핵심 기능
+- **7일 대여 기간**: 기본 7일 대여, 최대 7일 연장 가능
+- **자동 연체 처리**: 스케줄러를 통한 연체 상태 자동 변경
+- **예약-대여 연동**: 예약 확인 시 대여 레코드 자동 생성
+- **상태 추적**: ACTIVE/RETURNED/OVERDUE/LOST 상태 관리
+- **반납 처리**: 품목 상태 RENTED → AVAILABLE 자동 변경
+- **연장 기능**: 관리자 승인을 통한 대여 기간 연장 (1-7일)
+- **이력 관리**: 사용자별 대여 통계 및 이력 추적
+- **실시간 계산**: 남은 일수, 연체 일수, 대여 기간 실시간 계산
+
+### 대여 프로세스
+1. **예약 수령**: 관리자가 예약 확인 → 대여 레코드 자동 생성
+2. **대여 중**: ACTIVE 상태, 7일 대여 기간
+3. **연장**: 필요시 관리자 승인으로 1-7일 연장
+4. **연체**: 반납일 초과 시 OVERDUE 상태로 자동 변경
+5. **반납**: 관리자 반납 확인 → RETURNED 상태, 품목 AVAILABLE 복원
+
+## 예정된 API
+
+다음 단계에서 구현 예정인 API들:
+
+- **관리자 기능** (`/api/v1/admin`)
+
+---
+
+**상세한 API 사용 예제**: `docs/API_USAGE_EXAMPLES.md` 참조

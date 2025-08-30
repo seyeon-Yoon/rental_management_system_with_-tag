@@ -9,7 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/ko';
 
 import App from './App';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 // React Query Client
 const queryClient = new QueryClient({

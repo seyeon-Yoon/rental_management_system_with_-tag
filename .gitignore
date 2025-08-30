@@ -124,6 +124,9 @@ Thumbs.db
 # Personal development notes
 CLAUDE.md
 
+# Serena MCP configuration
+.serena/
+
 # Temporary files
 tmp/
 temp/

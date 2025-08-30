@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
-import { ApiResponse, ApiError } from '@/types';
+import { ApiResponse, ApiError } from '../types';
 
 // Base URL 설정
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';

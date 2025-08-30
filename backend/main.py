@@ -19,9 +19,40 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="렌탈 관리 시스템",
-    description="공과대학 학생회 렌탈 서비스 API",
+    title="렌탈 관리 시스템 API",
+    description="""
+    ## 융합공과대학 학생회 렌탈 서비스 관리 시스템
+
+    ### 주요 기능
+    - **인증 시스템**: 대학교 API 연동을 통한 학생 인증
+    - **품목 관리**: 카테고리별 품목 등록, 수정, 삭제, 재고 관리
+    - **예약 시스템**: 온라인 예약, 1시간 제한, 자동 만료
+    - **대여 관리**: 7일 대여 기간, 연장, 반납, 연체 처리
+
+    ### API 구조
+    - `/auth`: 인증 관련 (로그인, 로그아웃, 토큰 관리)
+    - `/categories`: 카테고리 관리
+    - `/items`: 품목 관리
+    - `/reservations`: 예약 관리
+    - `/rentals`: 대여 관리
+
+    ### 권한 구조
+    - **학생**: 품목 조회, 예약 생성/취소, 본인 대여 이력 조회
+    - **관리자**: 모든 기능 + 품목 등록/수정/삭제, 예약 확인, 대여 반납/연장
+
+    ### 개발 정보
+    - **Backend**: FastAPI + PostgreSQL + Redis
+    - **Frontend**: React + TypeScript + Material-UI
+    - **Authentication**: JWT Token + Redis Session
+    """,
     version="1.0.0",
+    contact={
+        "name": "융합공과대학 학생회",
+        "email": "contact@example.com"
+    },
+    license_info={
+        "name": "MIT License"
+    },
     lifespan=lifespan,
 )
 

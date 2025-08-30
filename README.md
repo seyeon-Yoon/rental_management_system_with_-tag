@@ -139,29 +139,46 @@
   - Docker 기반 개발 환경
   - FastAPI + React 프로젝트 구조
   - 데이터베이스 스키마 (6개 테이블)
-
-### 완료된 단계
-- ✅ **Phase 1**: 시스템 설계 및 아키텍처 (100%)
-- ✅ **Phase 2**: 개발 환경 구축 (100%)
-  - Docker 기반 개발 환경
-  - FastAPI + React 프로젝트 구조
-  - 데이터베이스 스키마 (6개 테이블)
 - ✅ **Phase 3**: 핵심 백엔드 개발 (100%)
   - ✅ 인증 시스템 구현 완료
   - ✅ 품목 관리 API 구현 완료
   - ✅ 예약 시스템 API 구현 완료
   - ✅ 대여 관리 API 구현 완료
+  - ✅ **백엔드 실행 환경 완성**: SQLite + FastAPI 서버 정상 실행
+  - ✅ **Swagger API 문서**: `http://localhost:8000/docs` 접근 가능 (총 32개 엔드포인트)
 
-### 다음 단계 (예정)
-- 📋 **Phase 4**: 프론트엔드 개발
-- 📋 **Phase 5**: 통합 및 테스트  
-- 📋 **Phase 6**: 배포 및 운영
+- ✅ **Phase 4**: 프론트엔드 개발 지원 (100%)
+  - ✅ **프론트엔드 아키텍처 가이드**: `docs/FRONTEND_DEVELOPMENT_GUIDE.md` (400+ 줄)
+    - React 18 + TypeScript + Material-UI 완전 설계
+    - 피처 기반 컴포넌트 구조, TanStack Query 상태 관리
+    - JWT 인증 및 보호된 라우트 패턴
+  - ✅ **API 통합 가이드**: `docs/API_USAGE_EXAMPLES.md` (300+ 줄)
+    - 32개 모든 엔드포인트 사용법 예제
+    - 인증 플로우, 에러 처리, TypeScript 타입 정의
+  - ✅ **UI/UX 설계 시스템**: `docs/UI_DESIGN_GUIDE.md` (500+ 줄)
+    - 전체 페이지 와이어프레임 (로그인부터 관리자 대시보드)
+    - Material-UI 컴포넌트 설계, 한국어 최적화, 모바일 우선 반응형
+  - ✅ **샘플 데이터 완비**: `backend/scripts/seed_sample_data.py`
+    - 7명 사용자, 8개 카테고리, 22개 품목, 다양한 예약/대여 시나리오
+
+### 진행 중
+- 🔄 **Phase 5**: 프론트엔드 구현 (25% 완료)
+  - ✅ React 개발환경 구축 완료
+  - 🔄 핵심 사용자 기능 구현 중
+
+### 다음 단계 (예정)  
+- 📋 **Phase 6**: 통합 및 테스트
+- 📋 **Phase 7**: 배포 및 운영
+- 📋 **Phase 8**: 사용자 테스트 및 최적화
 
 ### 마일스톤
 - **1주차 말**: Phase 2 완료 ✅
-- **2주차 말**: Phase 3 완료 ✅
-- **3주차 말**: Phase 4 완료 (목표)  
-- **4주차 말**: 전체 시스템 완료 (목표)
+- **2주차 말**: Phase 3 완료 ✅  
+- **3주차 초**: Phase 4 완료 ✅ (프론트엔드 지원 문서)
+- **3주차 말**: Phase 5 진행 중 🔄 (프론트엔드 구현)
+- **4주차 말**: Phase 6-8 완료 예정 (테스트, 배포, 최적화)
+
+
 
 ## 시스템 아키텍처
 
@@ -267,142 +284,163 @@ src/
 - **UI/UX**: Material-UI 컴포넌트, 반응형 디자인
 - **타입 안전성**: TypeScript로 컴파일 타임 타입 검증
 
-## API 문서
+## API 개요
 
-### 인증 API (`/api/v1/auth`)
+현재 총 **32개 API 엔드포인트**가 구현 완료되어 백엔드 시스템이 완성되었습니다.
 
-현재 구현 완료된 인증 관련 엔드포인트:
+- **Swagger 문서**: `http://localhost:8000/docs`
+- **상세 API 문서**: [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md)
+- **API 사용 예제**: [`docs/API_USAGE_EXAMPLES.md`](docs/API_USAGE_EXAMPLES.md)
 
-#### `POST /api/v1/auth/login`
-- **기능**: 대학교 시스템 연동 로그인
-- **요청**: `{ "student_id": "학번", "password": "비밀번호" }`
-- **응답**: JWT 토큰 및 사용자 정보
-- **특징**: 대학교 홈페이지 HTML 파싱으로 학과 정보 추출, 융공대 학생 여부 자동 확인
-
-#### `POST /api/v1/auth/logout`
-- **기능**: 로그아웃 및 세션 종료
-- **인증**: Bearer 토큰 필요
-- **특징**: Redis 세션 삭제, 감사 로그 자동 기록
-
-#### `GET /api/v1/auth/me`
-- **기능**: 현재 사용자 정보 조회
-- **인증**: Bearer 토큰 필요
-- **응답**: 사용자 프로필 정보
-
-#### `POST /api/v1/auth/refresh`
-- **기능**: JWT 토큰 갱신
-- **인증**: Bearer 토큰 필요
-- **특징**: 기존 세션 무효화 후 새 토큰 발급
-
-### 보안 기능
-
-- **JWT 토큰 인증**: HS256 알고리즘, 24시간 유효
-- **Redis 세션 관리**: 동시 로그인 제어, 자동 만료
-- **권한 기반 접근 제어**: 학생/관리자 역할 분리
-- **감사 로그**: 모든 인증 활동 자동 기록 (로그인/로그아웃/실패)
-- **IP 추적**: 클라이언트 IP 주소 기록 (X-Forwarded-For 지원)
-- **대학교 API 연동**: HTML 파싱으로 실시간 학생 인증
-
-### 품목 관리 API (`/api/v1/categories`, `/api/v1/items`)
-
-현재 구현 완료된 품목 관리 관련 엔드포인트:
-
-#### 카테고리 관리 (`/api/v1/categories`)
-- **`GET /categories`**: 카테고리 목록 조회 (페이지네이션, 필터링 지원)
-- **`GET /categories/{id}`**: 특정 카테고리 상세 조회
-- **`POST /categories`**: 새 카테고리 생성 (관리자 전용)
-- **`PUT /categories/{id}`**: 카테고리 정보 수정 (관리자 전용)
-- **`DELETE /categories/{id}`**: 카테고리 삭제 (관리자 전용, 소프트 삭제)
-- **`GET /categories/statistics`**: 카테고리 통계 조회 (관리자 전용)
-
-#### 품목 관리 (`/api/v1/items`)
-- **`GET /items`**: 품목 목록 조회 (검색, 필터링, 페이지네이션 지원)
-- **`GET /items/available`**: 대여 가능한 품목만 조회
-- **`GET /items/{id}`**: 특정 품목 상세 조회
-- **`GET /items/serial/{serial}`**: 일련번호로 품목 조회
-- **`POST /items`**: 새 품목 등록 (관리자 전용)
-- **`PUT /items/{id}`**: 품목 정보 수정 (관리자 전용)
-- **`DELETE /items/{id}`**: 품목 삭제 (관리자 전용, 소프트 삭제)
-- **`GET /items/statistics`**: 품목 통계 조회 (관리자 전용)
-
-#### 주요 기능
-- **실시간 재고 상태**: AVAILABLE/RESERVED/RENTED/MAINTENANCE 상태 관리
-- **개별 품목 추적**: 일련번호(serial_number)로 동일 품목 개별 관리
-- **메타데이터 지원**: 품목별 특수 속성(색상, 크기, 모델명 등) JSONB 저장
-- **감사 로그**: 모든 품목/카테고리 변경 이력 자동 기록
-- **권한 기반 접근**: 학생(조회만), 관리자(전체 관리) 구분
-- **소프트 삭제**: 데이터 보존하면서 논리적 삭제 처리
-
-### 예약 시스템 API (`/api/v1/reservations`)
-
-현재 구현 완료된 예약 시스템 관련 엔드포인트:
-
-#### 예약 관리
-- **`GET /reservations`**: 예약 목록 조회 (검색, 필터링, 페이지네이션 지원)
-- **`GET /reservations/my`**: 내 활성 예약 조회 (학생용)
-- **`GET /reservations/{id}`**: 특정 예약 상세 조회
-- **`POST /reservations`**: 새 예약 생성
-- **`POST /reservations/{id}/confirm`**: 예약 수령 확인 (관리자 전용)
-- **`POST /reservations/{id}/cancel`**: 예약 취소
-- **`POST /reservations/expire`**: 만료된 예약 일괄 처리 (관리자 전용)
-- **`GET /reservations/statistics`**: 예약 통계 조회 (관리자 전용)
-
-#### 핵심 기능
-- **1시간 예약 제한**: 예약 후 1시간 내 수령 필수, 초과 시 자동 만료
-- **실시간 재고 연동**: 예약 시 품목 상태 AVAILABLE → RESERVED 자동 변경
-- **자동 만료 처리**: 스케줄러를 통한 만료된 예약 자동 정리
-- **중복 예약 방지**: 같은 품목에 대한 중복 예약 불가
-- **권한 기반 관리**: 학생(본인 예약만), 관리자(전체 관리) 구분
-- **상태 추적**: PENDING/CONFIRMED/CANCELLED/EXPIRED 상태 관리
-- **남은 시간 계산**: 실시간 만료까지 남은 시간 표시
-- **감사 로그**: 모든 예약 관련 활동 자동 기록
-
-#### 예약 프로세스
-1. **예약 생성**: 학생이 AVAILABLE 품목 예약
-2. **품목 상태 변경**: AVAILABLE → RESERVED
-3. **1시간 대기**: 학생회실 방문하여 수령
-4. **수령 확인**: 관리자가 수령 확인 → CONFIRMED
-5. **대여 시작**: 품목 상태 RESERVED → RENTED
-6. **자동 만료**: 1시간 초과 시 EXPIRED, 품목 AVAILABLE 복원
-
-### 대여 관리 API (`/api/v1/rentals`)
-
-현재 구현 완료된 대여 관리 관련 엔드포인트:
-
-#### 대여 관리
-- **`GET /rentals`**: 대여 목록 조회 (검색, 필터링, 페이지네이션 지원)
-- **`GET /rentals/my`**: 내 활성 대여 조회 (학생용)
-- **`GET /rentals/{id}`**: 특정 대여 상세 조회
-- **`POST /rentals/{id}/return`**: 대여 반납 처리 (관리자 전용)
-- **`POST /rentals/{id}/extend`**: 대여 연장 처리 (관리자 전용)
-- **`POST /rentals/overdue`**: 연체된 대여 일괄 처리 (관리자 전용)
-- **`GET /rentals/history`**: 대여 이력 통계 조회 (관리자 전용)
-- **`GET /rentals/statistics`**: 대여 통계 조회 (관리자 전용)
-
-#### 핵심 기능
-- **7일 대여 기간**: 기본 7일 대여, 최대 7일 연장 가능
-- **자동 연체 처리**: 스케줄러를 통한 연체 상태 자동 변경
-- **예약-대여 연동**: 예약 확인 시 대여 레코드 자동 생성
-- **상태 추적**: ACTIVE/RETURNED/OVERDUE/LOST 상태 관리
-- **반납 처리**: 품목 상태 RENTED → AVAILABLE 자동 변경
-- **연장 기능**: 관리자 승인을 통한 대여 기간 연장 (1-7일)
-- **이력 관리**: 사용자별 대여 통계 및 이력 추적
-- **실시간 계산**: 남은 일수, 연체 일수, 대여 기간 실시간 계산
-
-#### 대여 프로세스
-1. **예약 수령**: 관리자가 예약 확인 → 대여 레코드 자동 생성
-2. **대여 중**: ACTIVE 상태, 7일 대여 기간
-3. **연장**: 필요시 관리자 승인으로 1-7일 연장
-4. **연체**: 반납일 초과 시 OVERDUE 상태로 자동 변경
-5. **반납**: 관리자 반납 확인 → RETURNED 상태, 품목 AVAILABLE 복원
-
-### 예정된 API
-
-다음 단계에서 구현 예정인 API들:
-
-- **관리자 기능** (`/api/v1/admin`)
+### 구현 완료된 API 그룹
+- ✅ **인증 API** (4개): 로그인/로그아웃, 토큰 관리, 사용자 조회
+- ✅ **품목 관리 API** (14개): 카테고리/품목 CRUD, 검색, 통계
+- ✅ **예약 시스템 API** (8개): 예약 생성/취소, 1시간 제한 관리
+- ✅ **대여 관리 API** (8개): 대여/반납 처리, 연장, 연체 관리
 
 ---
 
-**최종 수정일**: 2025-08-29  
+## 프론트엔드 개발 시작 가이드
+
+프론트엔드 개발자는 다음 순서로 개발을 시작할 수 있습니다:
+
+### 1단계: 백엔드 실행 및 API 확인
+```bash
+# 1. 백엔드 실행 (이미 실행 중이면 생략)
+cd backend
+python3 -m uvicorn main:app --reload --port 8000 --host 0.0.0.0
+
+# 2. Swagger API 문서 확인
+# 브라우저에서 http://localhost:8000/docs 접속
+
+# 3. 샘플 데이터 로드 (필요시)
+python3 scripts/seed_sample_data.py
+```
+
+### 2단계: 개발 가이드 문서 숭지
+- **아키텍처 가이드**: `docs/FRONTEND_DEVELOPMENT_GUIDE.md` 전체 읽기
+- **API 가이드**: `docs/API_USAGE_EXAMPLES.md`에서 인증 플로우 및 API 사용법 학습
+- **UI 가이드**: `docs/UI_DESIGN_GUIDE.md`에서 전체 화면 설계 및 컴포넌트 명세 확인
+
+### 3단계: React 프로젝트 설정
+```bash
+# frontend 디렉토리에 React 프로젝트 생성
+npx create-react-app frontend --template typescript
+cd frontend
+
+# 필수 라이브러리 설치
+npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/icons-material
+npm install @tanstack/react-query
+npm install react-router-dom
+npm install axios
+npm install dayjs
+```
+
+### 4단계: 개발 시작
+`docs/FRONTEND_DEVELOPMENT_GUIDE.md`의 "구현 순서" 섹션에 따라 단계적으로 개발:
+
+1. **기본 설정** - 로우터, 타입, Context 설정
+2. **인증 시스템** - 로그인, JWT 토큰 관리
+3. **공통 컴포넌트** - Layout, Header, 로딩
+4. **학생 기능** - 품목 목록, 예약, 내 이력
+5. **관리자 기능** - 대시보드, 품목 관리
+
+---
+
+## 🚀 실행 방법
+
+현재 시스템은 **Docker 실행**과 **로컬 실행** 두 가지 방식을 모두 지원합니다.
+
+### 🐳 Docker 실행 (프로덕션/배포용)
+
+완전한 프로덕션 환경으로 모든 서비스를 컨테이너로 실행합니다.
+
+```bash
+# 전체 시스템 실행
+docker-compose up
+
+# 백그라운드 실행
+docker-compose up -d
+
+# 접속
+# - 웹사이트: http://localhost (Nginx 통해서)
+# - API 문서: http://localhost:8000/docs  
+# - 프론트엔드: http://localhost:3000
+```
+
+**Docker 환경 구성:**
+- **PostgreSQL**: 데이터베이스 (포트 5432)
+- **Redis**: 세션 캐시 (포트 6379)
+- **Backend**: FastAPI 서버 (포트 8000)
+- **Frontend**: React 개발서버 (포트 3000)
+- **Nginx**: 리버스 프록시 (포트 80)
+
+### 💻 로컬 실행 (개발용) ⭐ 현재 활성화됨
+
+빠른 개발과 테스트를 위한 로컬 환경입니다.
+
+```bash
+# 1. 백엔드 실행 (SQLite 사용)
+cd backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# 2. 프론트엔드 실행 (별도 터미널)
+cd frontend  
+npm install  # 최초 1회만
+npm start
+
+# 접속
+# - 프론트엔드: http://localhost:3000
+# - API 문서: http://localhost:8000/docs
+```
+
+**로컬 환경 특징:**
+- **SQLite**: 파일 기반 데이터베이스 (`rental_system.db`)
+- **빠른 시작**: 의존성 최소화, 즉시 개발 가능
+- **자동 새로고침**: 코드 변경 시 자동 재시작
+- **샘플 데이터**: 테스트용 계정 및 품목 데이터 포함
+
+### 📋 샘플 데이터 및 테스트 계정
+
+로컬 실행 시 다음 테스트 계정을 사용할 수 있습니다:
+
+```bash
+# 샘플 데이터 생성 (최초 1회)
+cd backend
+python scripts/seed_sample_data.py
+```
+
+**테스트 계정:**
+- **관리자**: 2024001 (김관리), 2024002 (이운영)
+- **학생**: 2024101~2024105 (박학생, 최융공 등)
+- **비밀번호**: 모든 계정 `test123`
+
+**샘플 품목:** 22개 품목 (운동용품, 전자기기, 생활용품 등)
+
+### 🔄 환경 전환 가이드
+
+#### 로컬 → Docker 전환:
+1. `frontend/package.json`에서 proxy를 `"http://backend:8000"`으로 변경
+2. `.env`의 DATABASE_URL을 PostgreSQL로 변경
+3. `docker-compose up` 실행
+
+#### Docker → 로컬 전환:
+1. `frontend/package.json`에서 proxy를 `"http://localhost:8000"`으로 변경  
+2. `.env`의 DATABASE_URL을 SQLite로 변경
+3. 로컬 서버들 개별 실행
+
+---
+
+## 📝 최근 업데이트 (2025-08-30)
+
+### Phase 5 프론트엔드 구현 시작
+- **React 개발환경 구축 완료**: TypeScript, Material-UI, 백엔드 API 연동 테스트 완료
+- **브라우저 테스트 완료**: Playwright 자동 테스트 및 수동 브라우저 테스트 성공
+- **개발 환경 이슈 해결**: TypeScript 버전 호환성, 프록시 설정, import 경로 등 해결
+- **다음 단계**: React 컴포넌트 실제 구현 시작
+
+---
+
+**최종 수정일**: 2025-08-30  
 **작성자**: 윤세연

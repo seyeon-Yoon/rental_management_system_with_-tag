@@ -75,6 +75,8 @@ export interface ApiResponse<T = any> {
 export interface PaginationParams {
   page?: number;
   limit?: number;
+  search?: string;
+  category_id?: number;
 }
 
 export interface PaginatedResponse<T> {

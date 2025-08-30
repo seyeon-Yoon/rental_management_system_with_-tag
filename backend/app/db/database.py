@@ -7,12 +7,22 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 
 from app.core.config import settings
 
-# PostgreSQL 엔진 생성
-engine = create_engine(
-    settings.DATABASE_URL,
-    pool_pre_ping=True,
-    echo=settings.DEBUG,
-)
+# 데이터베이스 엔진 생성 (PostgreSQL 또는 SQLite 지원)
+if settings.DATABASE_URL.startswith("sqlite"):
+    # SQLite 설정
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False},  # SQLite 멀티스레드 지원
+        poolclass=StaticPool,
+        echo=settings.DEBUG,
+    )
+else:
+    # PostgreSQL 설정
+    engine = create_engine(
+        settings.DATABASE_URL,
+        pool_pre_ping=True,
+        echo=settings.DEBUG,
+    )
 
 # 세션 팩토리 생성
 SessionLocal = sessionmaker(
