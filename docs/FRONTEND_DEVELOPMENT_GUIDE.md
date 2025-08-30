@@ -47,9 +47,14 @@ src/
 
 ---
 
-## 🔐 인증 시스템
+## 🔐 인증 시스템 (2025-08-30 업데이트)
 
-### JWT 기반 인증 플로우
+⚠️ **현재 상태**: Redis 세션 저장소 없이 JWT 전용 인증으로 운영
+- 로그인 성공 후 즉시 로그아웃되는 문제 해결완료
+- AuthContext 응답 형식 불일치 문제 해결완료
+- graceful degradation으로 Redis 오류 시에도 정상 작동
+
+### JWT 기반 인증 플로우 (수정됨)
 
 ```typescript
 // src/features/auth/hooks/useAuth.ts
@@ -58,6 +63,7 @@ export const useAuth = () => {
   
   const login = useMutation({
     mutationFn: async (credentials: LoginRequest) => {
+      // ⚠️ 현재: apiClient.post() 직접 사용 (ApiResponse 래퍼 제거됨)
       const response = await authAPI.login(credentials);
       localStorage.setItem('token', response.access_token);
       return response;
@@ -68,7 +74,7 @@ export const useAuth = () => {
   });
   
   const logout = useMutation({
-    mutationFn: authAPI.logout,
+    mutationFn: authAPI.logout, // ⚠️ Redis 세션 실패해도 로컬스토리지만 정리
     onSuccess: () => {
       localStorage.removeItem('token');
       queryClient.clear();

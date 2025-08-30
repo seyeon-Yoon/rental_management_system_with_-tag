@@ -1,10 +1,16 @@
 # UI 설계 및 화면 구조 가이드
 
-## 📋 개요
+## 📋 개요 (2025-08-30 업데이트)
 
 융합공과대학 렌탈 관리 시스템의 사용자 인터페이스 설계 가이드입니다.
 
 **설계 원칙**: 모바일 우선, 직관적 UI, 한국어 최적화, 3클릭 룰
+
+⚠️ **현재 상태**: 
+- Vite + pnpm 개발환경으로 완전 마이그레이션 완료
+- Material-UI v5 + TypeScript 5.3.3 기반
+- 인증 시스템 안정화 (Redis 없이도 정상 작동)
+- Toast 알림 시스템 구현 완료
 
 ---
 
@@ -113,9 +119,9 @@ font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
 └─────────────────────────────────────┘
 ```
 
-#### 컴포넌트 구조
+#### 컴포넌트 구조 (수정됨)
 ```typescript
-// LoginPage.tsx
+// LoginPage.tsx - ⚠️ 현재 Toast 알림 시스템 적용됨
 <Container maxWidth="sm">
   <Box sx={{ mt: 8, mb: 4, textAlign: 'center' }}>
     <Typography variant="h3" component="h1" gutterBottom>
@@ -126,13 +132,16 @@ font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
     </Typography>
   </Box>
   
-  <LoginForm />
+  <LoginForm onSuccess={() => showToast('로그인 성공!')} />
   
   <Box sx={{ mt: 3, textAlign: 'center' }}>
     <Typography variant="body2" color="text.secondary">
       대학교 홈페이지 계정으로 로그인합니다
     </Typography>
   </Box>
+  
+  {/* Toast 컨테이너 추가됨 */}
+  <ToastContainer />
 </Container>
 ```
 

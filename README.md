@@ -466,6 +466,168 @@ python scripts/seed_sample_data.py
 
 ---
 
+## 🔧 Redis 설정 및 세션 관리
+
+### ⚠️ 현재 상황 (임시 수정 상태)
+
+현재 시스템은 **Redis 서버 미설치**로 인해 다음과 같은 임시 수정이 적용된 상태입니다:
+
+- **JWT-only 인증 모드**: Redis 세션 검증 실패 시에도 JWT 토큰만으로 인증 허용
+- **세션 관리 무력화**: Redis 연결 실패를 우아하게 처리하여 시스템 안정성 유지
+- **개발 환경 최적화**: 로컬 개발을 위한 임시 솔루션
+
+### 🚀 Redis 설치 방법
+
+Redis가 정상적으로 실행되면 완전한 세션 관리 시스템을 사용할 수 있습니다.
+
+#### Ubuntu/Debian 설치
+```bash
+# Redis 서버 설치
+sudo apt update
+sudo apt install redis-server
+
+# Redis 서비스 시작
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+
+# 설치 확인
+redis-cli ping
+# 응답: PONG
+```
+
+#### macOS 설치 (Homebrew)
+```bash
+# Homebrew로 Redis 설치
+brew install redis
+
+# Redis 서비스 시작
+brew services start redis
+
+# 설치 확인
+redis-cli ping
+# 응답: PONG
+```
+
+#### Docker로 Redis 실행 (권장)
+```bash
+# Redis 컨테이너 실행
+docker run -d --name redis-server -p 6379:6379 redis:alpine
+
+# 설치 확인
+docker exec redis-server redis-cli ping
+# 응답: PONG
+```
+
+### 🔄 Redis 정상 실행 시 코드 복원 가이드
+
+Redis가 정상적으로 실행되면 다음 임시 수정사항들을 **원래 상태로 복원**해야 합니다:
+
+#### 1. `backend/app/services/auth_service.py` 복원
+
+**현재 임시 수정된 코드:**
+```python
+# 세션 유효성 검증 (Redis 없을 때는 JWT만으로 인증)
+session_valid = validate_session(user_id, token)
+if not session_valid:
+    print(f"⚠️  Session validation failed for user {user_id}, using JWT-only auth")
+
+# 사용자 조회 (세션 검증 무시)
+user = db.query(User).filter(
+    User.id == user_id,
+    User.is_active == True
+).first()
+
+return user
+```
+
+**복원해야 할 원래 코드:**
+```python
+# 세션 유효성 검증
+if not validate_session(user_id, token):
+    return None
+
+# 사용자 조회
+user = db.query(User).filter(
+    User.id == user_id,
+    User.is_active == True
+).first()
+
+return user
+```
+
+#### 2. `backend/app/core/security.py` 복원 (선택사항)
+
+현재 Redis 에러 처리를 위한 try-catch 블록들이 추가되어 있습니다:
+- `create_session()`: Redis 실패 시 경고 메시지만 출력
+- `get_session()`: Redis 실패 시 None 반환
+- `delete_session()`: Redis 실패 시 True 반환
+
+**Redis 정상 실행 시**: 이 에러 처리 코드들을 제거하고 Redis 연결 실패 시 예외를 발생시키도록 복원할 수 있습니다 (선택사항).
+
+#### 3. 복원 절차
+
+```bash
+# 1. Redis 서비스 시작 확인
+redis-cli ping
+
+# 2. auth_service.py 수정
+# 위의 복원 코드를 적용하여 세션 검증 로직 복원
+
+# 3. 서버 재시작
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# 4. 로그인 테스트
+# 브라우저에서 로그인 후 세션 관리 정상 작동 확인
+```
+
+### ✨ Redis 사용 시 이점
+
+Redis가 정상 실행되면 다음과 같은 **고급 세션 관리 기능**을 사용할 수 있습니다:
+
+#### 🔐 보안 강화
+- **이중 인증**: JWT 토큰 + Redis 세션으로 2차 보안
+- **세션 무효화**: 의심스러운 활동 감지 시 특정 세션만 즉시 무효화
+- **동시 로그인 제어**: 같은 계정의 여러 세션 관리
+
+#### ⚡ 성능 향상  
+- **빠른 세션 조회**: 메모리 기반으로 초고속 세션 검증
+- **자동 만료**: TTL을 통한 세션 자동 정리
+- **캐싱**: 사용자 정보 캐싱으로 DB 부하 감소
+
+#### 🛠️ 운영 편의성
+- **실시간 모니터링**: 활성 세션 수 실시간 확인
+- **세션 관리**: 관리자 도구로 사용자 세션 조회/삭제
+- **로그아웃 강제**: 특정 사용자 모든 세션 강제 로그아웃
+
+#### 📊 사용 통계
+- **동시 접속자 수**: 실시간 활성 사용자 통계
+- **사용 패턴 분석**: 로그인 시간, 세션 지속 시간 등
+- **보안 감사**: 비정상적인 로그인 패턴 감지
+
+### 📋 개발/프로덕션 환경별 설정
+
+#### 개발 환경
+```bash
+# .env 파일 설정
+REDIS_URL=redis://localhost:6379
+
+# 단순한 Redis 설정 (보안 설정 최소)
+```
+
+#### 프로덕션 환경
+```bash
+# .env 파일 설정
+REDIS_URL=redis://username:password@redis-server:6379/0
+
+# 추가 보안 설정
+# - 비밀번호 인증
+# - SSL/TLS 연결
+# - Redis Cluster (고가용성)
+# - 정기 백업
+```
+
+---
+
 ## 📝 최근 업데이트 (2025-08-30)
 
 ### 🎉 상명대학교 SSO 로그인 시스템 완전 해결

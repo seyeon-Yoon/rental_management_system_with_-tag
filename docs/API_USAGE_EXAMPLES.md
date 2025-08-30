@@ -7,9 +7,18 @@
 **API Base URL**: `http://localhost:8000/api/v1`  
 **Swagger 문서**: `http://localhost:8000/docs`
 
+⚠️ **중요**: 현재 Redis 없이 JWT 전용 인증으로 운영 중 (개발 환경)
+
 ---
 
 ## 🔐 인증 (Authentication)
+
+### 현재 인증 시스템 상태 (2025-08-30 업데이트)
+
+**임시 수정사항**:
+- Redis 세션 저장소 없이 JWT 토큰만으로 인증
+- 세션 검증 실패 시 graceful degradation 적용
+- 로그인 성공 후 즉시 로그아웃되는 문제 해결
 
 ### 1. 로그인 API
 
@@ -17,6 +26,7 @@
 // POST /api/v1/auth/login
 const loginExample = async () => {
   try {
+    // 프론트엔드에서는 apiClient.post() 직접 사용 (ApiResponse 래퍼 제거)
     const response = await fetch('http://localhost:8000/api/v1/auth/login', {
       method: 'POST',
       headers: {
@@ -31,11 +41,11 @@ const loginExample = async () => {
     const data = await response.json();
     
     if (response.ok) {
-      // 성공 응답
+      // 성공 응답 (직접 LoginResponse 형식)
       console.log('로그인 성공:', data);
       // {
       //   access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      //   token_type: "bearer",
+      //   token_type: "bearer", 
       //   user: {
       //     id: 3,
       //     student_id: "2024101",
@@ -45,7 +55,7 @@ const loginExample = async () => {
       //   }
       // }
       
-      // JWT 토큰을 저장
+      // JWT 토큰을 저장 
       localStorage.setItem('token', data.access_token);
       return data;
     } else {
@@ -460,7 +470,20 @@ class RentalAPIClient {
   }
   
   async getCurrentUser() {
+    // ⚠️ 현재 Redis 세션 검증 실패 시 JWT만으로 인증 (개발환경)
     return this.request('/auth/me');
+  }
+  
+  async logout() {
+    // ⚠️ 현재 Redis 세션 삭제 실패해도 로컬스토리지 토큰만 삭제 (개발환경)
+    try {
+      await this.request('/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.warn('서버 로그아웃 실패, 로컬 토큰만 삭제:', error.message);
+    } finally {
+      this.token = null;
+      localStorage.removeItem('token');
+    }
   }
   
   // 품목 관련

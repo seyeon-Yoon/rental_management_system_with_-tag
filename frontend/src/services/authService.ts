@@ -1,14 +1,15 @@
-import { api } from './api';
+import { api, apiClient } from './api';
 import { User, LoginRequest, LoginResponse } from '../types';
 
 export const authService = {
-  // 로그인
+  // 로그인 - 직접 응답 형식 사용 (ApiResponse 래퍼 없음)
   login: async (studentId: string, password: string): Promise<LoginResponse> => {
     const loginData: LoginRequest = {
       student_id: studentId,
       password,
     };
-    return api.post<LoginResponse>('/auth/login', loginData);
+    const response = await apiClient.post<LoginResponse>('/auth/login', loginData);
+    return response.data;
   },
 
   // 로그아웃
@@ -29,8 +30,9 @@ export const authService = {
     return api.get<User>('/auth/me');
   },
 
-  // 토큰 갱신
+  // 토큰 갱신 - 직접 응답 형식 사용 (ApiResponse 래퍼 없음)
   refreshToken: async (): Promise<LoginResponse> => {
-    return api.post<LoginResponse>('/auth/refresh');
+    const response = await apiClient.post<LoginResponse>('/auth/refresh');
+    return response.data;
   },
 };

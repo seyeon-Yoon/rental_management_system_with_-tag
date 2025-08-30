@@ -62,9 +62,14 @@ def create_session(user_id: int, token: str, expires_minutes: int = None) -> str
         "last_accessed": datetime.utcnow().isoformat()
     }
     
-    # Redis에 세션 저장 (만료 시간 설정)
-    redis_client.hmset(session_key, session_data)
-    redis_client.expire(session_key, expires_minutes * 60)
+    try:
+        # Redis에 세션 저장 (만료 시간 설정)
+        redis_client.hmset(session_key, session_data)
+        redis_client.expire(session_key, expires_minutes * 60)
+        print(f"✅ Redis session created: {session_key}")
+    except Exception as e:
+        print(f"⚠️  Redis unavailable, skipping session storage: {e}")
+        # Redis 연결 실패시에도 세션 키는 반환 (JWT 토큰만으로 인증)
     
     return session_key
 
@@ -72,29 +77,40 @@ def create_session(user_id: int, token: str, expires_minutes: int = None) -> str
 def get_session(user_id: int, token: str) -> Optional[dict]:
     """Redis에서 사용자 세션 조회"""
     session_key = f"session:{user_id}:{token[-12:]}"
-    session_data = redis_client.hgetall(session_key)
     
-    if not session_data:
+    try:
+        session_data = redis_client.hgetall(session_key)
+        
+        if not session_data:
+            return None
+        
+        # 마지막 접근 시간 업데이트
+        redis_client.hset(session_key, "last_accessed", datetime.utcnow().isoformat())
+        
+        return session_data
+    except Exception as e:
+        print(f"⚠️  Redis unavailable, cannot get session: {e}")
+        # Redis 연결 실패시 None 반환 (JWT 토큰으로만 인증)
         return None
-    
-    # 마지막 접근 시간 업데이트
-    redis_client.hset(session_key, "last_accessed", datetime.utcnow().isoformat())
-    
-    return session_data
 
 
 def delete_session(user_id: int, token: str = None) -> bool:
     """Redis에서 사용자 세션 삭제"""
-    if token:
-        # 특정 세션 삭제
-        session_key = f"session:{user_id}:{token[-12:]}"
-        return bool(redis_client.delete(session_key))
-    else:
-        # 사용자의 모든 세션 삭제
-        pattern = f"session:{user_id}:*"
-        keys = redis_client.keys(pattern)
-        if keys:
-            return bool(redis_client.delete(*keys))
+    try:
+        if token:
+            # 특정 세션 삭제
+            session_key = f"session:{user_id}:{token[-12:]}"
+            return bool(redis_client.delete(session_key))
+        else:
+            # 사용자의 모든 세션 삭제
+            pattern = f"session:{user_id}:*"
+            keys = redis_client.keys(pattern)
+            if keys:
+                return bool(redis_client.delete(*keys))
+            return True
+    except Exception as e:
+        print(f"⚠️  Redis unavailable, cannot delete session: {e}")
+        # Redis 연결 실패시에도 성공으로 처리 (JWT 토큰만 사용)
         return True
 
 
@@ -107,6 +123,8 @@ def validate_session(user_id: int, token: str) -> bool:
     """세션 유효성 검증"""
     session_data = get_session(user_id, token)
     if not session_data:
+        # Redis가 없을 때는 JWT 토큰 자체의 유효성으로만 판단
+        print(f"⚠️  No session data found, relying on JWT token validation only")
         return False
     
     # 토큰 일치 확인
