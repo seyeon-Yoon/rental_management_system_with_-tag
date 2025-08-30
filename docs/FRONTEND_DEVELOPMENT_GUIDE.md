@@ -17,11 +17,12 @@
 Frontend Stack:
 ├── React 18 + TypeScript     // 컴포넌트 기반 UI 개발
 ├── Material-UI v5            // 한국어 최적화 디자인 시스템
-├── TanStack Query v4         // 서버 상태 관리 & 캐싱
+├── TanStack Query v5         // 서버 상태 관리 & 캐싱
 ├── React Router v6           // 클라이언트 사이드 라우팅
 ├── React Hook Form           // 폼 관리 및 검증
 ├── Day.js (Korean locale)    // 날짜/시간 처리
-└── Vite                      // 빠른 빌드 도구
+├── Create React App          // 빠른 개발 환경 구성
+└── webpack-dev-server v5.2.2 // 개발 서버 (devDependencies)
 ```
 
 ### 아키텍처 패턴

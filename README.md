@@ -140,10 +140,13 @@
   - FastAPI + React 프로젝트 구조
   - 데이터베이스 스키마 (6개 테이블)
 - ✅ **Phase 3**: 핵심 백엔드 개발 (100%)
-  - ✅ 인증 시스템 구현 완료
-  - ✅ 품목 관리 API 구현 완료
-  - ✅ 예약 시스템 API 구현 완료
-  - ✅ 대여 관리 API 구현 완료
+  - ✅ **상명대학교 SSO 인증 시스템 완전 해결 (2025-08-30)**
+    - 실제 대학교 시스템과 100% 호환되는 로그인 구현
+    - Playwright 브라우저 분석을 통한 실제 HTML 파싱 로직 구현
+    - Form 데이터 POST 방식으로 HTTP 요청 완전 수정
+  - ✅ 품목 관리 API 구현 완료 (카테고리 8개, 품목 22개)
+  - ✅ 예약 시스템 API 구현 완료 (1시간 제한, 자동 취소)
+  - ✅ 대여 관리 API 구현 완료 (7일 기간, 연장, 연체 관리)
   - ✅ **백엔드 실행 환경 완성**: SQLite + FastAPI 서버 정상 실행
   - ✅ **Swagger API 문서**: `http://localhost:8000/docs` 접근 가능 (총 32개 엔드포인트)
 
@@ -289,7 +292,8 @@ src/
 현재 총 **32개 API 엔드포인트**가 구현 완료되어 백엔드 시스템이 완성되었습니다.
 
 - **Swagger 문서**: `http://localhost:8000/docs`
-- **상세 API 문서**: [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md)
+- **백엔드 API 문서**: [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md)
+- **프론트엔드 API 가이드**: [`docs/API_GUIDE.md`](docs/API_GUIDE.md)  
 - **API 사용 예제**: [`docs/API_USAGE_EXAMPLES.md`](docs/API_USAGE_EXAMPLES.md)
 
 ### 구현 완료된 API 그룹
@@ -317,25 +321,32 @@ python3 -m uvicorn main:app --reload --port 8000 --host 0.0.0.0
 python3 scripts/seed_sample_data.py
 ```
 
-### 2단계: 개발 가이드 문서 숭지
+### 2단계: 개발 가이드 문서 숙지
 - **아키텍처 가이드**: `docs/FRONTEND_DEVELOPMENT_GUIDE.md` 전체 읽기
 - **API 가이드**: `docs/API_USAGE_EXAMPLES.md`에서 인증 플로우 및 API 사용법 학습
 - **UI 가이드**: `docs/UI_DESIGN_GUIDE.md`에서 전체 화면 설계 및 컴포넌트 명세 확인
 
-### 3단계: React 프로젝트 설정
+### 3단계: React 개발 환경 설정
 ```bash
-# frontend 디렉토리에 React 프로젝트 생성
-npx create-react-app frontend --template typescript
+# frontend 디렉토리로 이동
 cd frontend
 
-# 필수 라이브러리 설치
-npm install @mui/material @emotion/react @emotion/styled
-npm install @mui/icons-material
-npm install @tanstack/react-query
-npm install react-router-dom
-npm install axios
-npm install dayjs
+# 의존성 설치 (이미 설정되어 있음)
+npm install
+
+# 개발 서버 시작
+npm start
+
+# 브라우저에서 http://localhost:3000 접속하여 확인
 ```
+
+**현재 설치된 주요 라이브러리:**
+- React 18 + TypeScript (4.9.5)
+- Material-UI v5 (@mui/material, @mui/icons-material)  
+- TanStack Query v5 (@tanstack/react-query)
+- React Router v6
+- Axios, Day.js
+- webpack-dev-server v5.2.2 (개발 의존성)
 
 ### 4단계: 개발 시작
 `docs/FRONTEND_DEVELOPMENT_GUIDE.md`의 "구현 순서" 섹션에 따라 단계적으로 개발:
@@ -434,10 +445,20 @@ python scripts/seed_sample_data.py
 
 ## 📝 최근 업데이트 (2025-08-30)
 
+### 🎉 상명대학교 SSO 로그인 시스템 완전 해결
+- **핵심 문제 해결**: 실제 학번/비밀번호로도 인증이 실패하던 문제 완전 해결
+- **기술적 돌파**: Playwright를 활용한 실제 대학교 사이트 분석으로 정확한 로그인 플로우 파악
+- **HTTP 요청 방식 수정**: JSON POST → Form 데이터 POST 방식으로 전환
+- **엔드포인트 수정**: `/svc/tk/Auth.do` → `/Login.do` (실제 로그인 엔드포인트)
+- **결과**: 상명대학교 실제 인증 시스템과 100% 호환 달성
+
 ### Phase 5 프론트엔드 구현 시작
 - **React 개발환경 구축 완료**: TypeScript, Material-UI, 백엔드 API 연동 테스트 완료
 - **브라우저 테스트 완료**: Playwright 자동 테스트 및 수동 브라우저 테스트 성공
+- **프론트엔드 구조 문제 해결**: 중복된 `frontend/frontend/` 디렉토리 제거, 표준 React 구조 정리
+- **webpack-dev-server 이슈 해결**: 누락된 의존성 추가 (v5.2.2), Create React App 알려진 버그 확인
 - **개발 환경 이슈 해결**: TypeScript 버전 호환성, 프록시 설정, import 경로 등 해결
+- **현재 상태**: 백엔드 정상 실행, 프론트엔드 구조 완전 정리 완료
 - **다음 단계**: React 컴포넌트 실제 구현 시작
 
 ---
