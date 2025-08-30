@@ -1,8 +1,8 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import { ApiResponse, ApiError } from '../types';
 
-// Base URL 설정
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// Base URL 설정 (Vite 환경변수 사용)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // Axios 인스턴스 생성
 export const apiClient = axios.create({

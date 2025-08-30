@@ -2,15 +2,15 @@ import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 
-import Layout from './components/common/Layout';
-import ProtectedRoute from './components/common/ProtectedRoute';
-import LoginPage from './pages/LoginPage';
-import HomePage from './pages/HomePage';
-import ReservationPage from './pages/ReservationPage';
-import RentalHistoryPage from './pages/RentalHistoryPage';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ItemManagement from './pages/admin/ItemManagement';
-import RentalManagement from './pages/admin/RentalManagement';
+import Layout from '@/components/common/Layout';
+import ProtectedRoute from '@/components/common/ProtectedRoute';
+import LoginPage from '@/pages/LoginPage';
+import HomePage from '@/pages/HomePage';
+import ReservationPage from '@/pages/ReservationPage';
+import RentalHistoryPage from '@/pages/RentalHistoryPage';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import ItemManagement from '@/pages/admin/ItemManagement';
+import RentalManagement from '@/pages/admin/RentalManagement';
 
 function App() {
   return (

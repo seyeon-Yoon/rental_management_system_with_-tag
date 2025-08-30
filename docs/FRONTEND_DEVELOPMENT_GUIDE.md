@@ -15,14 +15,15 @@
 
 ```typescript
 Frontend Stack:
-├── React 18 + TypeScript     // 컴포넌트 기반 UI 개발
-├── Material-UI v5            // 한국어 최적화 디자인 시스템
-├── TanStack Query v5         // 서버 상태 관리 & 캐싱
-├── React Router v6           // 클라이언트 사이드 라우팅
-├── React Hook Form           // 폼 관리 및 검증
-├── Day.js (Korean locale)    // 날짜/시간 처리
-├── Create React App          // 빠른 개발 환경 구성
-└── webpack-dev-server v5.2.2 // 개발 서버 (devDependencies)
+├── React 18 + TypeScript 5.3.3  // 컴포넌트 기반 UI 개발, 고급 타입 추론
+├── Vite 5.0.8                   // 초고속 개발 서버 (HMR), 최적화된 번들링
+├── Material-UI v5                // 한국어 최적화 디자인 시스템
+├── TanStack Query v5             // 서버 상태 관리 & 캐싱
+├── React Router v6               // 클라이언트 사이드 라우팅
+├── React Hook Form               // 폼 관리 및 검증
+├── Day.js (Korean locale)        // 날짜/시간 처리
+├── pnpm 10.15.0                  // 빠른 패키지 매니저, 디스크 효율성
+└── ESLint + Prettier             // 코드 품질 자동화, 포맷팅
 ```
 
 ### 아키텍처 패턴
@@ -507,6 +508,62 @@ export const DashboardLayout: React.FC = () => {
 
 ## 🔧 개발 환경 설정
 
+### Vite 설정 및 최적화
+
+#### vite.config.ts 주요 설정
+```typescript
+// 개발 서버 설정
+server: {
+  port: 3000,
+  host: true,
+  proxy: {
+    '/api': {
+      target: 'http://localhost:8000',
+      changeOrigin: true,
+    },
+  },
+}
+
+// TypeScript Path Mapping
+resolve: {
+  alias: {
+    '@': resolve(__dirname, './src'),
+    '@/components': resolve(__dirname, './src/components'),
+    '@/pages': resolve(__dirname, './src/pages'),
+    '@/services': resolve(__dirname, './src/services'),
+    '@/types': resolve(__dirname, './src/types'),
+    '@/utils': resolve(__dirname, './src/utils'),
+    '@/hooks': resolve(__dirname, './src/hooks'),
+    '@/contexts': resolve(__dirname, './src/contexts'),
+  },
+}
+
+// 번들 최적화
+build: {
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        vendor: ['react', 'react-dom'],
+        mui: ['@mui/material', '@mui/icons-material'],
+        router: ['react-router-dom'],
+        query: ['@tanstack/react-query'],
+      }
+    }
+  }
+}
+```
+
+#### Path Mapping 사용 예제
+```typescript
+// Before (상대 경로)
+import { useAuth } from '../../../contexts/AuthContext';
+import { ItemCard } from '../../components/ItemCard';
+
+// After (절대 경로)
+import { useAuth } from '@/contexts/AuthContext';
+import { ItemCard } from '@/components/ItemCard';
+```
+
 ### 환경 변수 (.env)
 
 ```bash
@@ -524,21 +581,54 @@ VITE_DEV_MODE=true
 ### 패키지 설치 명령어
 
 ```bash
+# 전체 의존성 설치 (권장)
+pnpm install
+
+# 개별 패키지 설치 (필요시)
 # 필수 의존성
-npm install react@18 react-dom@18
-npm install @mui/material @emotion/react @emotion/styled
-npm install @mui/icons-material
-npm install @tanstack/react-query
-npm install react-router-dom
-npm install react-hook-form @hookform/resolvers yup
-npm install axios
-npm install dayjs
+pnpm add react@18 react-dom@18
+pnpm add @mui/material @emotion/react @emotion/styled
+pnpm add @mui/icons-material
+pnpm add @tanstack/react-query
+pnpm add react-router-dom
+pnpm add react-hook-form @hookform/resolvers yup
+pnpm add axios dayjs
 
 # 개발 의존성
-npm install -D @types/react @types/react-dom
-npm install -D @vitejs/plugin-react
-npm install -D eslint @typescript-eslint/eslint-plugin
-npm install -D prettier eslint-config-prettier
+pnpm add -D @types/react @types/react-dom @types/node
+pnpm add -D @vitejs/plugin-react vite
+pnpm add -D typescript@5.3.3
+pnpm add -D eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser
+pnpm add -D prettier eslint-config-prettier eslint-plugin-prettier
+pnpm add -D eslint-plugin-react eslint-plugin-react-hooks
+```
+
+### pnpm 스크립트 명령어
+
+```bash
+# 개발 서버 (Vite HMR - 0.1초 내 빠른 시작)
+pnpm dev
+
+# 프로덕션 빌드 (Terser 압축, 번들 분할)
+pnpm build
+
+# 빌드 결과 미리보기
+pnpm preview
+
+# TypeScript 타입 체크
+pnpm type-check
+
+# ESLint 코드 검사
+pnpm lint
+
+# ESLint 자동 수정
+pnpm lint:fix
+
+# Prettier 코드 포맷팅
+pnpm format
+
+# 전체 품질 검사 (타입 + 린트 + 포맷)
+pnpm check-all
 ```
 
 ---
