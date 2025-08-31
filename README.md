@@ -383,29 +383,9 @@ pnpm dev
 
 현재 시스템은 **Docker 실행**과 **로컬 실행** 두 가지 방식을 모두 지원합니다.
 
-### 🪟 Windows 사용자를 위한 간편 설치
+### 🪟 Windows 사용자를 위한 설치 가이드
 
 **개발 초보자**를 위한 상세 가이드: [`WINDOWS_SETUP_GUIDE.md`](WINDOWS_SETUP_GUIDE.md)
-
-**빠른 설치** (이미 Python, Node.js가 설치된 경우):
-```bash
-# 1. 프로젝트 복제
-git clone https://github.com/your-username/rental_management_system_with_tag.git
-cd rental_management_system_with_tag
-
-# 2. 설치 스크립트 실행
-setup-local.bat
-
-# 3. 서버 실행
-# 터미널 1: cd backend && venv\Scripts\activate && python main.py
-# 터미널 2: cd frontend && pnpm dev
-```
-
-**완전 자동 설치** (관리자 권한 필요 - Python, Node.js까지 자동 설치):
-```powershell
-# PowerShell을 관리자로 실행 후:
-./setup-auto.ps1
-```
 
 ### 🐳 Docker 실행 (프로덕션/배포용)
 
@@ -468,11 +448,6 @@ pnpm dev      # Vite 개발 서버 실행 (HMR, 즉시 빌드)
 cd backend
 python scripts/seed_sample_data.py
 ```
-
-**테스트 계정:**
-- **관리자**: 2024001 (김관리), 2024002 (이운영)
-- **학생**: 2024101~2024105 (박학생, 최융공 등)
-- **비밀번호**: 모든 계정 `test123`
 
 **샘플 품목:** 22개 품목 (운동용품, 전자기기, 생활용품 등)
 

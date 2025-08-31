@@ -33,8 +33,8 @@ const loginExample = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        student_id: '2024101',  // 샘플 학생 계정
-        password: 'test123'     // 실제로는 대학교 시스템 연동
+        student_id: 'your_student_id',  // 실제 학번 입력
+        password: 'your_password'       // 실제 대학교 시스템 비밀번호
       })
     });
     
@@ -48,10 +48,10 @@ const loginExample = async () => {
       //   token_type: "bearer", 
       //   user: {
       //     id: 3,
-      //     student_id: "2024101",
-      //     name: "박학생",
+      //     student_id: "your_student_id",
+      //     name: "사용자명",
       //     role: "STUDENT",
-      //     department: "컴퓨터과학전공"
+      //     department: "전공명"
       //   }
       // }
       
@@ -526,7 +526,7 @@ const api = new RentalAPIClient();
 
 // 로그인
 try {
-  const user = await api.login('2024101', 'test123');
+  const user = await api.login('your_student_id', 'your_password');
   console.log('로그인 성공:', user);
 } catch (error) {
   console.error('로그인 실패:', error.message);
@@ -555,7 +555,7 @@ const testCompleteFlow = async () => {
   try {
     // 1. 로그인
     console.log('1. 로그인 중...');
-    const user = await api.login('2024101', 'test123');
+    const user = await api.login('your_student_id', 'your_password');
     console.log('✅ 로그인 성공:', user.user.name);
     
     // 2. 대여 가능한 품목 조회
@@ -602,7 +602,7 @@ const testReservationTimer = async () => {
   
   try {
     // 로그인 및 예약 생성
-    await api.login('2024101', 'test123');
+    await api.login('your_student_id', 'your_password');
     const items = await api.getAvailableItems();
     const reservation = await api.createReservation(items[0].id);
     
@@ -756,16 +756,8 @@ const handleReserve = async (itemId) => {
 
 ### 테스트 계정들
 ```
-관리자 계정:
-- ID: 2024001 (김관리)
-- ID: 2024002 (이운영)
-
-학생 계정:
-- ID: 2024101 (박학생) - 컴퓨터과학전공
-- ID: 2024102 (최융공) - 전자공학과  
-- ID: 2024103 (윤대여) - 기계공학과
-- ID: 2024104 (정예약) - 화학공학과
-- ID: 2024105 (강반납) - 건설환경공학과
+테스트 계정:
+- 실제 대학교 계정을 사용하여 테스트하세요
 ```
 
 ### 품목 상태별 샘플 데이터
