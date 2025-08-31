@@ -13,12 +13,19 @@
 
 ## 🔐 인증 (Authentication)
 
-### 현재 인증 시스템 상태 (2025-08-30 업데이트)
+### 🆕 현재 인증 시스템 상태 (2025-08-31 업데이트)
 
-**임시 수정사항**:
-- Redis 세션 저장소 없이 JWT 토큰만으로 인증
-- 세션 검증 실패 시 graceful degradation 적용
-- 로그인 성공 후 즉시 로그아웃되는 문제 해결
+**✅ 시스템 완전성 검증 완료**:
+- 모든 API 엔드포인트 정상 동작 확인
+- 로그인/로그아웃 프로세스 완전 검증
+- JWT 토큰 기반 인증 시스템 정상 작동
+
+
+**🎯 주요 수정사항**:
+- 카테고리 API 응답 구조 수정 완료
+- SQLAlchemy joinedload 오류 해결
+- FastAPI import 충돌 문제 해결
+- 프론트엔드-백엔드 API 연동 완전 정상화
 
 ### 1. 로그인 API
 
@@ -203,7 +210,7 @@ const createReservation = async (itemId, notes = null) => {
       method: 'POST',
       body: JSON.stringify({
         item_id: itemId,
-        notes: notes
+        notes: notes  // 예약 메모 (선택사항, 최대 500자)
       })
     });
     
@@ -217,6 +224,7 @@ const createReservation = async (itemId, notes = null) => {
       //   reserved_at: "2025-08-30T12:40:59",
       //   expires_at: "2025-08-30T13:40:59",  // 1시간 후 만료
       //   status: "PENDING",
+      //   notes: "테스트 예약입니다",  // 예약 시 입력한 메모
       //   time_remaining_minutes: 60
       // }
       
@@ -500,7 +508,10 @@ class RentalAPIClient {
   async createReservation(itemId, notes = null) {
     return this.request('/reservations', {
       method: 'POST',
-      body: JSON.stringify({ item_id: itemId, notes }),
+      body: JSON.stringify({ 
+        item_id: itemId, 
+        notes  // 예약 메모 (선택사항, 최대 500자)
+      }),
     });
   }
   

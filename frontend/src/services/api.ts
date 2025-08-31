@@ -50,31 +50,31 @@ apiClient.interceptors.response.use(
 export const api = {
   // GET 요청
   get: async <T>(url: string, params?: any): Promise<T> => {
-    const response = await apiClient.get<ApiResponse<T>>(url, { params });
-    return response.data.data;
+    const response = await apiClient.get<T>(url, { params });
+    return response.data;
   },
 
   // POST 요청
   post: async <T>(url: string, data?: any): Promise<T> => {
-    const response = await apiClient.post<ApiResponse<T>>(url, data);
-    return response.data.data;
+    const response = await apiClient.post<T>(url, data);
+    return response.data;
   },
 
   // PUT 요청
   put: async <T>(url: string, data?: any): Promise<T> => {
-    const response = await apiClient.put<ApiResponse<T>>(url, data);
-    return response.data.data;
+    const response = await apiClient.put<T>(url, data);
+    return response.data;
   },
 
   // DELETE 요청
   delete: async <T>(url: string): Promise<T> => {
-    const response = await apiClient.delete<ApiResponse<T>>(url);
-    return response.data.data;
+    const response = await apiClient.delete<T>(url);
+    return response.data;
   },
 
   // PATCH 요청
   patch: async <T>(url: string, data?: any): Promise<T> => {
-    const response = await apiClient.patch<ApiResponse<T>>(url, data);
-    return response.data.data;
+    const response = await apiClient.patch<T>(url, data);
+    return response.data;
   },
 };

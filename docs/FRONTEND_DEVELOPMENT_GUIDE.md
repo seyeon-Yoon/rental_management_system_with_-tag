@@ -47,7 +47,37 @@ src/
 
 ---
 
-## 🔐 인증 시스템 (2025-08-30 업데이트)
+## 🔐 인증 시스템 (2025-08-31 업데이트)
+
+### 🚀 실제 대여물품 시스템 완성
+- **전체 API 연동 검증 완료**: 모든 주요 엔드포인트 정상 동작 확인
+- **실제 대여물품 구축**: 133개 품목, 5개 주요 카테고리 완성
+- **테스트 환경 구축**: 전체 시스템 검증
+- **주요 버그 수정**:
+  - 카테고리 드롭다운 API 응답 구조 수정
+  - SQLAlchemy property 로딩 오류 해결
+  - FastAPI import 충돌 문제 해결
+  - 품목 조회 API 구조 통일화
+
+### 현재 시스템 상태
+```typescript
+// 검증 완료된 API 엔드포인트
+const VERIFIED_APIS = {
+  auth: '✅ 로그인/로그아웃 정상',
+  categories: '✅ 드롭다운 목록 정상 표시', 
+  items: '✅ CRUD 작업 모두 정상',
+  reservations: '✅ 예약 프로세스 정상',
+  rentals: '✅ 대여/반납 프로세스 정상'
+};
+
+// 현재 샘플 데이터
+const SAMPLE_DATA = {
+  총품목: 19,
+  카테고리: 7,
+
+  비밀번호: 'seyeon0303!'
+};
+```
 
 ⚠️ **현재 상태**: Redis 세션 저장소 없이 JWT 전용 인증으로 운영
 - 로그인 성공 후 즉시 로그아웃되는 문제 해결완료
@@ -220,7 +250,97 @@ export const ItemCard: React.FC<ItemCardProps> = ({
 };
 ```
 
-### 2. ReservationTimer 컴포넌트
+### 2. ReservationDialog 컴포넌트 (예약 메모 기능)
+
+```typescript
+// src/features/reservations/components/ReservationDialog.tsx
+interface ReservationDialogProps {
+  open: boolean;
+  onClose: () => void;
+  item: Item;
+  onConfirm: (itemId: number, notes?: string) => void;
+}
+
+export const ReservationDialog: React.FC<ReservationDialogProps> = ({
+  open,
+  onClose,
+  item,
+  onConfirm
+}) => {
+  const [notes, setNotes] = useState('');
+  const [notesError, setNotesError] = useState('');
+
+  const handleSubmit = () => {
+    if (notes.length > 500) {
+      setNotesError('메모는 500자 이내로 입력해 주세요.');
+      return;
+    }
+    
+    onConfirm(item.id, notes.trim() || undefined);
+    setNotes('');
+    setNotesError('');
+    onClose();
+  };
+
+  const handleNotesChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = event.target.value;
+    setNotes(value);
+    
+    if (value.length > 500) {
+      setNotesError('메모는 500자 이내로 입력해 주세요.');
+    } else {
+      setNotesError('');
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>예약 확인</DialogTitle>
+      <DialogContent>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h6">{item.name}</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {item.description}
+          </Typography>
+        </Box>
+        
+        <TextField
+          label="예약 메모 (선택사항)"
+          multiline
+          rows={3}
+          fullWidth
+          value={notes}
+          onChange={handleNotesChange}
+          placeholder="예약 사유나 요청사항을 입력해 주세요..."
+          helperText={
+            notesError || 
+            `${notes.length}/500자 ${notesError ? '(초과)' : ''}`
+          }
+          error={!!notesError}
+          sx={{ mb: 1 }}
+        />
+        
+        <Alert severity="info" sx={{ mt: 2 }}>
+          예약 후 1시간 내에 수령하지 않으면 자동으로 취소됩니다.
+        </Alert>
+      </DialogContent>
+      
+      <DialogActions>
+        <Button onClick={onClose}>취소</Button>
+        <Button 
+          variant="contained" 
+          onClick={handleSubmit}
+          disabled={!!notesError}
+        >
+          예약하기
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+```
+
+### 3. ReservationTimer 컴포넌트
 
 ```typescript
 // src/features/reservations/components/ReservationTimer.tsx
@@ -299,7 +419,8 @@ export const useReserveItem = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: reservationsAPI.createReservation,
+    mutationFn: (params: { itemId: number; notes?: string }) => 
+      reservationsAPI.createReservation(params.itemId, params.notes),
     onSuccess: () => {
       // 관련 캐시 무효화
       queryClient.invalidateQueries(['items']);

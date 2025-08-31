@@ -60,11 +60,12 @@ const HomePage: React.FC = () => {
   } = useQuery({
     queryKey: ['items', searchTerm, selectedCategory, page],
     queryFn: () => 
-      itemService.getAvailableItems({
+      itemService.getItems({
         page,
         limit: itemsPerPage,
         search: searchTerm || undefined,
         category_id: selectedCategory || undefined,
+        status: 'AVAILABLE'
       }),
   });
 
@@ -165,7 +166,7 @@ const HomePage: React.FC = () => {
     return myReservations?.some(reservation => reservation.item_id === itemId);
   };
 
-  const categories = categoriesResponse?.items || [];
+  const categories = categoriesResponse?.categories || [];
   const items = itemsResponse?.items || [];
   const totalPages = Math.ceil((itemsResponse?.total || 0) / itemsPerPage);
 

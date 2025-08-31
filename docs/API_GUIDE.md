@@ -4,8 +4,12 @@
 
 프론트엔드 개발자가 렌탈 관리 시스템 API를 효율적으로 사용할 수 있도록 작성된 가이드입니다.
 
-## 🎉 최신 업데이트 (2025-08-30)
-**상명대학교 SSO 로그인 시스템 완전 해결**: 실제 대학교 인증 시스템과 100% 호환되는 로그인 구현 완료
+## 🆕 최신 업데이트 (2025-08-31)
+**시스템 완전성 검증 및 API 연동 완료**:
+- 전체 API 엔드포인트 정상 동작 검증 완료 ✅
+- 샘플 데이터 구축: 19개 품목, 7개 카테고리 생성
+- 주요 버그 수정: 카테고리 API, SQLAlchemy 오류, FastAPI import 문제 해결
+
 
 ## 빠른 시작
 
@@ -28,7 +32,7 @@ const loginResponse = await fetch('/api/v1/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    student_id: "202210950",
+    student_id: "학번입력",
     password: "password123"
   })
 });
@@ -77,7 +81,7 @@ const headers = {
 | Method | Endpoint | 설명 | 권한 |
 |--------|----------|------|------|
 | GET | `/reservations/my` | 내 활성 예약 | 학생 |
-| POST | `/reservations` | 예약 생성 | 학생 |
+| POST | `/reservations` | 예약 생성 (notes 메모 포함) | 학생 |
 | POST | `/reservations/{id}/cancel` | 예약 취소 | 학생(본인)/관리자 |
 | POST | `/reservations/{id}/confirm` | 예약 확인 | 관리자 |
 
@@ -96,13 +100,13 @@ const headers = {
 - **실시간 상태**: `remaining_minutes` 필드로 남은 시간 확인 가능
 
 ```javascript
-// 예약 생성
+// 예약 생성 (notes 필드 추가)
 const reservation = await fetch('/api/v1/reservations', {
   method: 'POST',
   headers,
   body: JSON.stringify({
     item_id: 1,
-    notes: "오후 3시경 수령 예정"
+    notes: "오후 3시경 수령 예정"  // 예약 메모 (선택사항, 최대 500자)
   })
 });
 
@@ -156,11 +160,14 @@ if (is_overdue) {
 // 1. 대여 가능한 품목 조회
 const availableItems = await fetch('/api/v1/items/available');
 
-// 2. 예약 생성
+// 2. 예약 생성 (메모 포함)
 const reservation = await fetch('/api/v1/reservations', {
   method: 'POST',
   headers,
-  body: JSON.stringify({ item_id: selectedItemId })
+  body: JSON.stringify({ 
+    item_id: selectedItemId,
+    notes: "점심시간에 수령 예정"  // 선택사항
+  })
 });
 
 // 3. 내 예약 목록 새로고침

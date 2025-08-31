@@ -52,7 +52,7 @@ const Layout: React.FC = () => {
           fontSize: '0.875rem',
         }}
       >
-        © 2024 융합공과대학 학생회. All rights reserved.
+        © 2025 융합공과대학 학생회 태그. All rights reserved.
       </Box>
     </Box>
   );

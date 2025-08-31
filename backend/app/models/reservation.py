@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, ForeignKey, DateTime, Enum, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime, timedelta
@@ -30,6 +30,9 @@ class Reservation(Base):
     
     # 상태
     status = Column(Enum(ReservationStatus), default=ReservationStatus.PENDING, nullable=False, index=True, comment="예약 상태")
+    
+    # 예약 메모
+    notes = Column(String(500), nullable=True, comment="예약 메모")
     
     # 타임스탬프
     created_at = Column(DateTime(timezone=True), server_default=func.now(), comment="생성 시간")
