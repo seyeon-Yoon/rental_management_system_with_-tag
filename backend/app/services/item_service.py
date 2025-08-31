@@ -33,9 +33,7 @@ class ItemService:
             ItemList: 품목 목록과 통계
         """
         query = db.query(Item).options(
-            joinedload(Item.category),
-            joinedload(Item.current_rental),
-            joinedload(Item.current_reservation)
+            joinedload(Item.category)
         )
         
         # 필터 적용
@@ -103,9 +101,7 @@ class ItemService:
             ItemResponse: 품목 정보
         """
         item = db.query(Item).options(
-            joinedload(Item.category),
-            joinedload(Item.current_rental),
-            joinedload(Item.current_reservation)
+            joinedload(Item.category)
         ).filter(Item.id == item_id).first()
         
         if not item:
@@ -131,9 +127,7 @@ class ItemService:
             ItemResponse: 품목 정보
         """
         item = db.query(Item).options(
-            joinedload(Item.category),
-            joinedload(Item.current_rental),
-            joinedload(Item.current_reservation)
+            joinedload(Item.category)
         ).filter(Item.serial_number == serial_number).first()
         
         if not item:

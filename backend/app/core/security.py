@@ -125,7 +125,7 @@ def validate_session(user_id: int, token: str) -> bool:
     if not session_data:
         # Redis가 없을 때는 JWT 토큰 자체의 유효성으로만 판단
         print(f"⚠️  No session data found, relying on JWT token validation only")
-        return False
+        return True  # JWT 토큰이 이미 검증되었으므로 True 반환
     
     # 토큰 일치 확인
     stored_token = session_data.get("token")
